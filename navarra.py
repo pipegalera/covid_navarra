@@ -1,7 +1,7 @@
 # @Author: pipegalera
 # @Date:   2020-10-04T21:40:56+02:00
 # @Last modified by:
-# @Last modified time: 2021-01-21T14:33:42+01:00
+# @Last modified time: 2021-01-21T14:39:13+01:00
 
 
 
@@ -51,7 +51,7 @@ def img_to_bytes(img_path):
     return encoded
 
 header_html = "<img src='data:image/png;base64,{}' class='img-fluid'>".format(
-    img_to_bytes(r"C:\Users\pipeg\github\covid_navarra\images\Header.png"))
+    img_to_bytes(r"\images\Header.png"))
 
 st.markdown(header_html, unsafe_allow_html=True,)
 
