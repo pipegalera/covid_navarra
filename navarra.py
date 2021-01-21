@@ -1,7 +1,7 @@
 # @Author: pipegalera
 # @Date:   2020-10-04T21:40:56+02:00
 # @Last modified by:
-# @Last modified time: 2021-01-21T14:39:13+01:00
+# @Last modified time: 2021-01-21T15:07:37+01:00
 
 
 
@@ -12,6 +12,9 @@ from pathlib import Path
 import base64
 import altair as alt
 from datetime import datetime, date
+from PIL import Image
+import requests
+import io
 #import locale
 #locale.setlocale(locale.LC_ALL, 'es_ES')
 
@@ -45,13 +48,8 @@ raw_data, culumative_cases, individual_cases, last_week_cases = load_data()
 # Markdown. For that reason, first we transform the image from PNG to bytes,
 # Credits to Peter Baumgartner: https://pmbaumgartner.github.io/streamlitopedia/sizing-and-images.html
 
-def img_to_bytes(img_path):
-    img_bytes = Path(img_path).read_bytes()
-    encoded = base64.b64encode(img_bytes).decode()
-    return encoded
+header_html = "<img src='https://i.imgur.com/pahDIz7.png'>"
 
-header_html = "<img src='data:image/png;base64,{}' class='img-fluid'>".format(
-    img_to_bytes(r"\images\Header.png"))
 
 st.markdown(header_html, unsafe_allow_html=True,)
 
