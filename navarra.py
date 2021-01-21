@@ -1,82 +1,155 @@
 # @Author: pipegalera
 # @Date:   2020-10-04T21:40:56+02:00
-# @Last modified by:   pipegalera
-# @Last modified time: 2020-12-25T20:12:56+01:00
+# @Last modified by:
+# @Last modified time: 2021-01-20T20:17:54+01:00
 
 
 
 import streamlit as st
 import pandas as pd
 import numpy as np
+from pathlib import Path
+import base64
 import altair as alt
-import plotly.express as px
 from datetime import datetime, date
 import locale
 locale.setlocale(locale.LC_ALL, 'es_ES')
 
-# Header
-st.title("Covid-Navarra")
+######## LOAD DATA ####################
+def load_data():
+    url_deaths = "http://www.navarra.es/appsext/DescargarFichero/default.aspx?codigoAcceso=OpenData&fichero=coronavirus\datos_coronavirus_zonas_basicas.csv"
 
-def get_data():
-    # Raw data
-    url = "http://www.navarra.es/appsext/DescargarFichero/default.aspx?codigoAcceso=OpenData&fichero=coronavirus\CasosMunicipios_ZR_Covid.csv"
-    df = pd.read_csv(url, sep = ';', encoding='latin1', parse_dates=['Fecha'])
+    raw_data = pd.read_csv(url_deaths,
+                           sep = ';',
+                           decimal=",",
+                           encoding='utf-8',
+                           usecols = ["Fecha", "Zona Básica", "Casos acumulados", "% por 1000"],
+                           parse_dates= ["Fecha"],
+                           dayfirst = True)
 
-    #Tidy data
-    df = df.set_index('DesMun')
-    df = df.drop(columns = {'CodZR', 'CodMun', 'AcumuladoCasosHastaLaFecha'})
-    df.rename(columns = {'DesZR': 'Zona', 'NuevosCasos': 'Casos ese dia'}, inplace = True)
-    return df
+    culumative_cases = pd.pivot_table(raw_data,
+                                      index = "Zona Básica",
+                                      columns = "Fecha",
+                                      values= "Casos acumulados")
 
-df = get_data()
+    individual_cases = culumative_cases.diff(axis = 1).fillna(culumative_cases['2020-03-25'].iloc[0])
+    last_week_cases = individual_cases.iloc[:,-7:].sum().sum().astype(int)
 
-###########################################################################
-# Total cases of last day and printing the Header
-last_day = df['Fecha'].iloc[-1]
+    return raw_data, culumative_cases, individual_cases, last_week_cases
 
-st.write("El número total de casos confirmados de COVID-19 en Navarra es", df.cumsum()['Casos ese dia'].iloc[-1], ", a día",  last_day.strftime('%d'), "de", last_day.strftime('%B'), "de", last_day.strftime('%Y'), ". Los datos provienen del Departamento de Salud de Navarra, y son actualizados diariamente. Fuente: [Gobierno Abierto de Navarra](https://gobiernoabierto.navarra.es/es/open-data/datos/positivos-covid-19-por-pcr-distribuidos-por-municipio).")
-###########################################################################
+raw_data, culumative_cases, individual_cases, last_week_cases = load_data()
 
+##################### HEADER #######################################
+
+# For whatever reason, Streamlit display better the images in HTML than in
+# Markdown. For that reason, first we transform the image from PNG to bytes,
+# Credits to Peter Baumgartner: https://pmbaumgartner.github.io/streamlitopedia/sizing-and-images.html
+
+def img_to_bytes(img_path):
+    img_bytes = Path(img_path).read_bytes()
+    encoded = base64.b64encode(img_bytes).decode()
+    return encoded
+
+header_html = "<img src='data:image/png;base64,{}' class='img-fluid'>".format(
+    img_to_bytes(r"C:\Users\pipeg\github\covid_navarra\images\Header.png"))
+
+st.markdown(header_html, unsafe_allow_html=True,)
+
+st.markdown("---")
+st.markdown("""
+* :hospital: Número de casos en los últimos 7 días en Navarra: **{}**.
+* :zap: Datos actualizados diariamente por el [Gobierno de Navarra](https://gobiernoabierto.navarra.es/es/open-data/datos/positivos-covid-19-por-pcr-distribuidos-por-municipio).
+* :point_right: **Selecciona zonas básicas de salud** para saber la evolución de Covid-19 en ellas, así como compararlas (e.g. Tudela Este, Rochapea, Corella...).
+""".format(last_week_cases))
+
+
+
+######### Municipality selection ############
 
 # Filter box
-st.write("Selecciona los municipios:")
 municipios = st.multiselect(
-    "", list(df.index.unique().sort_values()), ["TUDELA", "PAMPLONA / IRUÑA"] # defaults
+    "", list(culumative_cases.index.unique().sort_values()), ['Tudela Este', 'Tudela Oeste'] # defaults
 )
-
 if not municipios:
     st.error("Por favor, selecciona al menos un municipio")
 
-# Load data
-data_selected = df.loc[municipios].reset_index()
-
-data_header = pd.pivot_table(data_selected, index = 'DesMun', columns = 'Fecha', values = 'Casos ese dia', aggfunc=np.sum, margins= False)
 
 # Tidy data
-data_header.columns = data_header.columns.strftime('%d-%b')
-data_header = data_header.reset_index()
-data_header = data_header.fillna(0)
-data_header = data_header.rename(columns = {'DesMun': '', 'All': 'Casos totales'})
-data_header = data_header.set_index('')
-st.write("Nuevos casos, ultima semana:")
-st.write(data_header.iloc[:, :-8:-1])
+def tidy_data(municipios):
+    data_selected = individual_cases.loc[municipios]
+    data_selected.columns = data_selected.columns.strftime('%d-%b')
+    data_selected = data_selected.reset_index()
+    data_selected = data_selected.rename(columns = {'Zona Básica': ''})
+    data_selected = data_selected.set_index('')
 
+    return data_selected
 
-# Chart
-data_ac = data_header.cumsum(axis=1).T.reset_index()
-data_ac = pd.melt(data_ac, id_vars = ['Fecha'])
-data_ac = data_ac.rename(columns = {'': 'Región', 'value': 'Casos Acumulados'})
+data_selected = tidy_data(municipios)
+last_week_data_selected = data_selected.iloc[:, :-8:-1]
 
-st.write("Casos acumulados en los municipios selecionados:")
+st.markdown("""
+            ## Nuevos casos de los últimos 7 días
+               """)
 
-chart = (
-    alt.Chart(data_ac)
-    .mark_area(
-        opacity=0.5)
-    .encode(
-        x="Fecha:T",
-        y=alt.Y("Casos Acumulados:Q", stack=None),
-        color="Región:N",
+st.write(last_week_data_selected)
+st.markdown("---")
+
+################ Chart ##########################################
+
+st.markdown("""
+            ## Comparación de la evolución de casos positivos por 1000 habitantes.
+               """)
+
+# Data used
+evolution_data = raw_data[raw_data['Zona Básica'].isin(municipios)]
+
+def make_evolution_chart(evolution_data):
+    # Basic chart
+    line = alt.Chart(evolution_data, title = ''
+    ).mark_line(interpolate='basis', size=3).encode(
+        alt.X('Fecha:T'),
+        alt.Y('% por 1000:Q', title='Casos acumulados por 1000 habitantes'),
+        color= 'Zona Básica')
+    # to smooth the line you can use the LOESS transform
+    #).transform_loess('Fecha', '% por 1000', groupby=['Zona Básica'])
+
+    # Create a selection that chooses the nearest point & selects based on x-value (Fecha)
+    nearest  = alt.selection(type='single', on='mouseover',
+                              fields=['Fecha'], nearest=True , empty='none')
+
+    # Transparent selectors across the chart. This is what tells us
+    # the x-value of the cursor
+    selectors = alt.Chart(evolution_data).mark_point().encode(
+        x='Fecha:T',
+        opacity=alt.value(0),
+    ).add_selection(
+        nearest
     )
-)
-st.altair_chart(chart, use_container_width=True)
+
+    # Draw points on the line, and highlight based on selection
+    points = line.mark_point().encode(
+        opacity=alt.condition(nearest, alt.value(1), alt.value(0))
+    )
+
+
+    # Draw text labels near the points, and highlight based on selection
+    text = line.mark_text(align='left', dx=5, dy=-7).encode(
+        text=alt.condition(nearest, '% por 1000:Q', alt.value(' '))
+    )
+
+    # Draw a rule at the location of the selection
+    rules = alt.Chart(evolution_data).mark_rule(color='gray').encode(
+        x='Fecha:T',
+    ).transform_filter(
+        nearest
+    )
+
+    # Put the five layers into a chart and bind the data
+    evolution_chart = alt.layer(
+        line, selectors, points, rules, text
+    )
+
+    return evolution_chart
+evolution_chart = make_evolution_chart(evolution_data)
+
+st.altair_chart(evolution_chart, use_container_width=True)
