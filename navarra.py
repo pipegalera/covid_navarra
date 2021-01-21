@@ -1,7 +1,7 @@
 # @Author: pipegalera
 # @Date:   2020-10-04T21:40:56+02:00
 # @Last modified by:
-# @Last modified time: 2021-01-21T14:28:00+01:00
+# @Last modified time: 2021-01-21T14:30:19+01:00
 
 
 
@@ -12,8 +12,8 @@ from pathlib import Path
 import base64
 import altair as alt
 from datetime import datetime, date
-#import locale
-#locale.setlocale(locale.LC_ALL, 'es_ES')
+import locale
+locale.setlocale(locale.LC_ALL, 'es_ES')
 
 ######## LOAD DATA ####################
 def load_data():
