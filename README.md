@@ -3,11 +3,6 @@
 
 https://navarracovid.herokuapp.com/
 
-:warning: Takes 1 minute to load. 
-
-:turtle: Why? Heroku server is around Europe, and the app needs to download the most recent data from a server in Spain. 
-
-
 # Preview
 ![Preview gif](https://i.imgur.com/GFzB8Qi.gif)
 
