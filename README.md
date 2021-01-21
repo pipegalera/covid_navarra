@@ -1,9 +1,6 @@
-# Project website
-Simple website showing the number of cases of COVID-19 in the different regions of Navarra (Spain).
-
-To be done:
-
-- Case Prediction with [prophet](https://facebook.github.io/prophet/docs/quick_start.html)
 
 # Preview
-![Preview image](https://github.com/pipegalera/covid_navarra/blob/main/images/preview.png)
+![Preview gif](https://i.imgur.com/GFzB8Qi.gif)
+
+- Interactive website app showing the last number of cases of COVID-19 and its evolution in the different regions of Navarra (Spain).
+- Fully written in Python (with bits of HTML) and deployed using Streamlit.
