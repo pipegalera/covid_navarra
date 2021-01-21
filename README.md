@@ -6,4 +6,5 @@ To be done:
 - Case Prediction with [prophet](https://facebook.github.io/prophet/docs/quick_start.html)
 
 # Preview
-![Preview image](https://github.com/pipegalera/covid_navarra/blob/main/images/preview.png)
+![Preview gif](https://i.imgur.com/qDkhqQs.gif)
+
