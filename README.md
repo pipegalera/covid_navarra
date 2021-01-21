@@ -12,3 +12,4 @@ https://navarracovid.herokuapp.com/
     * Altair for interactive visualization.
     * Pandas/numpy/datetime for data cleaning.
     * Streamlit for deployment.
+    * Heroku used as server.
