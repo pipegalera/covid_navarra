@@ -1,7 +1,7 @@
 # @Author: pipegalera
 # @Date:   2020-10-04T21:40:56+02:00
 # @Last modified by:
-# @Last modified time: 2021-01-21T15:07:37+01:00
+# @Last modified time: 2021-01-21T15:38:15+01:00
 
 
 
@@ -45,11 +45,9 @@ raw_data, culumative_cases, individual_cases, last_week_cases = load_data()
 ##################### HEADER #######################################
 
 # For whatever reason, Streamlit display better the images in HTML than in
-# Markdown. For that reason, first we transform the image from PNG to bytes,
-# Credits to Peter Baumgartner: https://pmbaumgartner.github.io/streamlitopedia/sizing-and-images.html
+# Markdown.'img-fluid' is used to make it scale appropriately across devices
 
-header_html = "<img src='https://i.imgur.com/pahDIz7.png'>"
-
+header_html = "<img src='https://i.imgur.com/pahDIz7.png' class='img-fluid'>"
 
 st.markdown(header_html, unsafe_allow_html=True,)
 
