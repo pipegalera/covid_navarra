@@ -1,7 +1,7 @@
 # @Author: pipegalera
 # @Date:   2020-10-04T21:40:56+02:00
 # @Last modified by:
-# @Last modified time: 2021-01-22T10:37:15+01:00
+# @Last modified time: 2021-01-22T10:44:57+01:00
 
 
 
@@ -16,7 +16,7 @@ from PIL import Image
 import requests
 import io
 import locale
-locale.setlocale(locale.LC_ALL, 'es_ES')
+locale.setlocale(locale.LC_ALL, 'es_ES.utf8')
 
 ######## LOAD DATA ####################
 def load_data():
