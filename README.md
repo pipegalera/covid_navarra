@@ -1,7 +1,7 @@
 
 # Website 
 
-https://navarracovid.herokuapp.com/
+https://pipegalera-covid-navarra-navarra-m34wzt.streamlitapp.com
 
 # Preview
 ![Preview gif](https://i.imgur.com/GFzB8Qi.gif)
@@ -12,4 +12,3 @@ https://navarracovid.herokuapp.com/
     * Altair for interactive visualization.
     * Pandas/numpy/datetime for data cleaning.
     * Streamlit for deployment.
-    * Heroku used as server.
