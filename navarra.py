@@ -17,18 +17,12 @@ import requests
 import io
 #import locale
 #locale.setlocale(locale.LC_ALL, 'es_ES.utf8')
-
 ######## LOAD DATA ####################
 def load_data():
-    url_deaths = "http://www.navarra.es/appsext/DescargarFichero/default.aspx?codigoAcceso=OpenData&fichero=coronavirus\datos_coronavirus_zonas_basicas.csv"
+    url = "https://datosabiertos.navarra.es/dataset/574e3c3d-0b2a-456e-9faf-95fe61093316/resource/58b4cac7-db62-4fa6-b30f-6fd6a931a225/download/datos_coronavirus_zonas_basicas.xls"
+    raw_data = pd.read_excel(url,sheet_name='Datos')
 
-    raw_data = pd.read_csv(url_deaths,
-                           sep = ';',
-                           decimal=",",
-                           encoding='utf-8',
-                           usecols = ["Fecha", "Zona Básica", "Casos acumulados", "% por 1000"],
-                           parse_dates= ["Fecha"],
-                           dayfirst = True)
+    raw_data['Fecha'] = pd.to_datetime(raw_data['Fecha'], dayfirst=True)
 
     culumative_cases = pd.pivot_table(raw_data,
                                       index = "Zona Básica",
@@ -57,7 +51,6 @@ st.markdown("""
 * :zap: Datos actualizados diariamente por el [Gobierno de Navarra](https://gobiernoabierto.navarra.es/es/open-data/datos/positivos-covid-19-por-pcr-distribuidos-por-municipio).
 * :point_right: **Selecciona zonas básicas de salud** para saber la evolución de Covid-19 en ellas, así como compararlas (e.g. Tudela Este, Rochapea, Corella...).
 """.format(last_week_cases))
-
 
 
 ######### Municipality selection ############
